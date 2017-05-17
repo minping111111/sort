@@ -131,8 +131,29 @@ func guibin(source []int) []int {
 	}
 	return source
 }
+//快排，先选最后一个元素为基准元素，从头遍历其他元素，与基准元素比较，大于基准元素的放前面，小于基准元素的放小于元素的后面，而不是基准元素的后面。最后将中间元素与基准元素交换。
+//这样基准元素的左边都小于基准元素，右边都大于基准元素。左右两边各成一个子列。对每个子列再分别进行快排操作，递归下去即可。最终完成整个数组的排序。
+func quickSort() []int {
+	source := []int{1, 5, 3, 7, 9, 4, 2}
+	realQuickSort(source)
+	return source
 
-//todo
-func kuaipai(source []int) []int {
+}
 
+func realQuickSort(source []int) {
+	storeIndex := 0
+	baseIndex := len(source) - 1
+	if baseIndex <= storeIndex {
+		return
+	} else {
+		for i := storeIndex; i < baseIndex; i++ {
+			if source[i] < source[baseIndex] {
+				source[storeIndex], source[i] = source[i], source[storeIndex]
+				storeIndex++
+			}
+		}
+		source[storeIndex], source[baseIndex] = source[baseIndex], source[storeIndex]
+		realQuickSort(source[:storeIndex])
+		realQuickSort(source[storeIndex+1:])
+	}
 }
