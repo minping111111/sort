@@ -36,7 +36,7 @@ func main() {
 	printList(newHead)
 }
 
-//链表反转，传入头结点，返回新的头结点
+//递归实现链表反转，传入头结点，返回新的头结点
 func listReverse(current, prev *node) *node {
 	if current == nil || current.next == nil {
 		current.next = prev
