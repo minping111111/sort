@@ -49,21 +49,15 @@ func listReverse_recursive(current, prev *node) *node {
 	return listReverse_recursive(tempNext, prev)
 
 }
-//循环实现链表反转，传入头结点，返回新的头结点
+
 func listReverse_for(current *node) *node {
 	var prev *node
 	for current != nil {
-		if current.next == nil {
-			current.next = prev
-			break
-		} else {
-			tempnext := current.next
-			current.next = prev
-			prev = current
-			current = tempnext
-		}
-
+		tempnext := current.next
+		current.next = prev
+		prev = current
+		current = tempnext
 	}
-	return current
+	return prev
 
 }
