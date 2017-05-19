@@ -32,8 +32,10 @@ func printList(head *node) *node {
 
 func main() {
 	// printList(node0)
-	newHead := listReverse_for(node0)
-	printList(newHead)
+	// newHead := listReverse_recursive(node0, nil)
+	newHead := listReverse_recursive2(node0)
+	// newHead := listReverse_for(node0)
+	_ = printList(newHead)
 }
 
 //递归实现链表反转，传入头结点，返回新的头结点
@@ -48,6 +50,20 @@ func listReverse_recursive(current, prev *node) *node {
 	prev = current
 	return listReverse_recursive(tempNext, prev)
 
+}
+
+//递归实现链表反转，与上一个函数不同的是，这里只需要一个参数即可
+var prev *node
+
+func listReverse_recursive2(current *node) *node {
+	if current != nil {
+		tempnext := current.next
+		current.next = prev
+		prev = current
+		return listReverse_recursive2(tempnext)
+	} else {
+		return prev
+	}
 }
 
 func listReverse_for(current *node) *node {
