@@ -1,4 +1,3 @@
-//leetcode练习题
 package main
 
 import (
@@ -14,7 +13,7 @@ func main() {
 	// res := erfen(source, 0, len(source)-1, 5)
 	// fmt.Println(res)
 	// res := SearchInRotatedSortedArray([]int{4, 5, 6, 6, 7, 0, 1, 2}, 6)
-	res, err := GetKthElem([]int{1, 3, 5, 7, 9}, []int{2, 3, 5, 6, 8}, 7)
+	res, err := GetKthElem3([]int{1, 3, 5, 7, 9}, []int{2, 3, 5, 6, 8}, 9)
 	if err == nil {
 		fmt.Println(res)
 	} else {
@@ -169,33 +168,116 @@ LOOP1:
 	if len(source) >= k {
 		return source[k-1], nil
 	}
-	return -1, errors.New(`the kth older elem do not found`)
+	return -1, errors.New(fmt.Sprintf(`the %dth older elem do not found`, k))
+
 }
 
-// 找出两列排好序的数组的全部元素的第K大的元素,第二种方法
+// 找出两列排好序的数组的全部元素的第K小的元素,第二种方法
 func GetKthElem2(sourceA, sourceB []int, k int) (int, error) {
 	sourceA, _ = RemoveDuplicate(sourceA)
 	sourceB, _ = RemoveDuplicate(sourceB)
+	lengA := len(sourceA)
+	lengB := len(sourceB)
 	indexA := 0
 	indexB := 0
 	index := 0
-	for index <= k {
-		if len(sourceA)-1 < indexA { //A遍历完了
+	elem := 0
 
-		} else if len(sourceB)-1 < indexB { //B遍历完了
-
-		} else {
-			if sourceA[indexA] < sourceB[indexB] {
-				indexA++
-			} else if sourceA[indexA] > sourceB[indexB] {
+	for index < k {
+		if indexA <= lengA-1 && indexB <= lengB-1 {
+			if sourceA[indexA] > sourceB[indexB] {
+				elem = sourceB[indexB]
 				indexB++
+			} else if sourceA[indexA] < sourceB[indexB] {
+				elem = sourceA[indexA]
+				indexA++
 			} else {
+				elem = sourceA[indexA]
 				indexA++
 				indexB++
 			}
+		} else if indexA > lengA-1 && indexB <= lengB-1 {
+			elem = sourceB[indexB]
+			indexB++
+		} else if indexB > lengB-1 && indexA <= lengA-1 {
+			elem = sourceA[indexA]
+			indexA++
+		} else {
+			return -1, errors.New(fmt.Sprintf(`the %dth older elem do not found`, k))
 		}
-
 		index++
 	}
+
+	return elem, nil
+
+}
+
+//第三种方法。先去除A数组中的第k/2个元素和B数组中的第K/2个元素，然后再按照第二种方法继续寻找
+func GetKthElem3(sourceA, sourceB []int, k int) (int, error) {
+	sourceA, _ = RemoveDuplicate(sourceA)
+	sourceB, _ = RemoveDuplicate(sourceB)
+	delmap := make(map[int]bool)
+	lengA := len(sourceA)
+	lengB := len(sourceB)
+	delindex := 0
+	elem := -1
+	i := 0
+	j := 0
+	for i = 0; i < k/2 && i < lengA; i++ {
+		delmap[sourceA[i]] = true
+		delindex++
+	}
+	for j = 0; j < k/2 && j < lengB; j++ {
+		if _, ok := delmap[sourceB[j]]; !ok {
+			delmap[sourceB[j]] = true
+			delindex++
+		}
+	}
+
+	for delindex < k {
+		if i < lengA && j < lengB {
+			if sourceA[i] < sourceB[j] {
+				if _, ok := delmap[sourceA[i]]; !ok {
+					elem = sourceA[i]
+					i++
+					delindex++
+				} else {
+					i++
+				}
+			} else if sourceA[i] > sourceB[j] {
+				if _, ok := delmap[sourceB[j]]; !ok {
+					elem = sourceB[j]
+					j++
+					delindex++
+				} else {
+					j++
+				}
+			} else {
+				elem = sourceA[i]
+				i++
+				j++
+				delindex++
+			}
+		} else if i < lengA && j >= lengB { //B遍历完了
+			if _, ok := delmap[sourceA[i]]; !ok {
+				elem = sourceA[i]
+				i++
+				delindex++
+			} else {
+				i++
+			}
+		} else if j < lengB && i >= lengA { //A遍历完了
+			if _, ok := delmap[sourceB[j]]; !ok {
+				elem = sourceB[j]
+				j++
+				delindex++
+			} else {
+				j++
+			}
+		} else {
+			return -1, errors.New(fmt.Sprintf(`the %dth older elem do not found`, k))
+		}
+	}
+	return elem, nil
 
 }
