@@ -16,8 +16,22 @@ func main() {
 	// fmt.Println(res)
 	// res := nextPaiLieZuHe([]int{7, 3, 1, 2, 2, 5})
 	// fmt.Println(res)
-	res := PermutationSequence(5, 3)
+	// res := PermutationSequence(5, 3)
+	// fmt.Println(res)
+
+	// res := ValidSudoku([][]{{5,3,,,7,,,,,},{6,,,1,9,5,,,,},{,9,8,,,,,,6,},{8,,,,6,,,,3},{4,,,8,,3,,,1},{7,,,,2,,,,6},{,6,,,,,2,8,},{,,,4,1,9,,,5},{,,,,8,,7,9}})
+	// val := [][]int{[]int{5, 3, -1, -1, 7, -1, -1, -1, -1}, []int{6, -1, -1, 1, 9, 5, -1, -1, -1}, []int{-1, 9, 2, -1, -1, -1, -1, 6, -1}, []int{8, -1, -1, -1, 6, -1, -1, -1, 3}, []int{4, -1, -1, 5, -1, 3, -1, -1, 1}, []int{7, -1, -1, -1, 2, -1, -1, -1, 6}, []int{-1, 6, -1, -1, -1, -1, 4, 8, -1}, []int{-1, -1, -1, 4, 1, 9, -1, -1, 5}, []int{-1, -1, -1, -1, 8, -1, -1, 7, 9}}
+
+	// res := ValidSudoku(val)
+	// if res {
+	// 	fmt.Println("valid")
+	// } else {
+	// 	fmt.Println("invalid")
+	// }
+
+	res := TrappingRainWater([]int{0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1})
 	fmt.Println(res)
+
 }
 
 // 求最长的子连续序列，比如输入为100, 4, 200, 1, 3, 2，输出为1,2,3,4,要求在O(n)复杂度内完成
@@ -449,18 +463,180 @@ func jiecheng(k int) int {
 }
 
 //todo
-func PermutationSequence2(n, k int) []int {
-	// source := []int{}
-	// var newSource [n]int
+// func PermutationSequence2(n, k int) []int {
+// 	// source := []int{}
+// 	// var newSource [n]int
 
-	// for i := 0; i <= n; i++ {
-	// 	source = append(source, i)
-	// }
-	// tempSource := source
-	// for j := 1; j < len(tempSource); j++ {
-	// 	newSource[j] =  k/jiecheng(len(tempSource)-1-j) +1
-	// 	tempSource = append(tempSource[:newSource[j]+1],tempSource[newSource[j]+1:])
-	// }
+// 	// for i := 0; i <= n; i++ {
+// 	// 	source = append(source, i)
+// 	// }
+// 	// tempSource := source
+// 	// for j := 1; j < len(tempSource); j++ {
+// 	// 	newSource[j] =  k/jiecheng(len(tempSource)-1-j) +1
+// 	// 	tempSource = append(tempSource[:newSource[j]+1],tempSource[newSource[j]+1:])
+// 	// }
 
-	// return source
+// 	// return source
+// }
+
+//求一个数独是否符合三个条件
+func ValidSudoku(source [][]int) (isvalid bool) {
+	isvalid = true
+	leng := len(source)
+	if leng < 3 {
+		return
+	}
+	for i := 0; i < leng; i++ {
+		tmepHash := make(map[int]bool)
+		for j := 0; j < leng; j++ {
+			//检查行
+			if source[i][j] != -1 {
+				if _, ok := tmepHash[source[i][j]]; ok {
+					// fmt.Println(i)
+					// fmt.Println(j)
+					// fmt.Println(source[i][j])
+					// fmt.Println(`vvvvvvvvvvv`)
+					isvalid = false
+					return
+				} else {
+					tmepHash[source[i][j]] = true
+				}
+
+			}
+
+		}
+	}
+
+	for i := 0; i < leng; i++ {
+		tmepHash := make(map[int]bool)
+		for j := 0; j < leng; j++ {
+			//检查行
+			if source[j][i] != -1 {
+				//检查列
+				if _, ok := tmepHash[source[j][i]]; ok {
+					// fmt.Println(i)
+					// fmt.Println(j)
+					// fmt.Println(source[i][j])
+					// fmt.Println(`bbbbbbbbbbb`)
+					isvalid = false
+					return
+				} else {
+					tmepHash[source[j][i]] = true
+				}
+			}
+
+		}
+	}
+
+	//检查3*3小矩阵
+	i := 0
+	for i <= 8-2 {
+		j := 0
+		for j <= 8-2 {
+			newSource := [][]int{[]int{source[i][j], source[i][j+1], source[i][j+2]}, []int{source[i+1][j], source[i+1][j+1], source[i+1][j+2]}, []int{source[i+2][j], source[i+2][j+1], source[i+2][j+2]}}
+			isvalid = ValidSudokuFor3(newSource)
+			if !isvalid {
+				// fmt.Println(i)
+				// fmt.Println(j)
+				// fmt.Println(source[i][j])
+				// fmt.Println(`cccccccccccc`)
+				return
+			}
+			j++
+		}
+		i++
+	}
+	return
+}
+
+//求一个3*3矩阵中是否有相同元素
+func ValidSudokuFor3(source [][]int) (isValid bool) {
+	hashtemptable := make(map[int]bool)
+	isValid = true
+	for i := 0; i < 3; i++ {
+		for j := 0; j < 3; j++ {
+			if source[i][j] != -1 {
+				_, ok := hashtemptable[source[i][j]]
+				if ok {
+					isValid = false
+					return
+				} else {
+					hashtemptable[source[i][j]] = true
+				}
+			}
+		}
+	}
+	return
+}
+
+//求数组组成的矩阵，最大能装多少水
+func TrappingRainWater(source []int) int {
+	trap := 0
+	leng := len(source)
+	if leng < 3 {
+		return 0
+	}
+	for i := 1; i < leng-1; i++ {
+		//向左贪心找到连续比此元素大，直到最大元素
+		leftflag := false
+		rightflag := false
+		var j int
+		var k int
+		for j = i - 1; j >= 0; j-- {
+			if source[j] > source[j+1] {
+				leftflag = true
+				continue
+			} else {
+				break
+			}
+		}
+		//向右贪心找到连续比此元素大，直到最大元素
+		//找到了左边最大元素才有意义找右边的
+
+		if leftflag {
+			for k = i + 1; k < leng; k++ {
+				if source[k] > source[k-1] {
+					rightflag = true
+					continue
+				} else {
+					break
+				}
+			}
+		}
+
+		//如果左边找到的最大元素和右边找到的最大元素都比此元素本身大，才能装水
+		if leftflag && rightflag {
+
+			//修正starting。。。
+			//对于上面找j的for循环，最后一步多加了一个1，这里要做修正
+			if j == 0 {
+				if source[j] < source[j+1] {
+					j = j + 1
+				}
+			} else {
+				j = j + 1 //对于上面找j的for循环，最后一步多加了一个1，这里要减去
+			}
+			//对于上面找K的for循环，最后一步多减了一个1，这里要做修正
+			if k == leng-1 {
+				if source[k] < source[k-1] {
+					k = k - 1
+				}
+			} else {
+				k = k - 1
+			}
+			//修正finished。。。。。。
+
+			standardHeight := source[j]
+			if source[j] > source[k] {
+				standardHeight = source[k]
+			}
+			for m := j + 1; m < k; m++ {
+				if source[m] < standardHeight {
+					trap = trap + (standardHeight - source[m])
+				}
+			}
+		}
+
+	}
+	return trap
 }
