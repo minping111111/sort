@@ -14,7 +14,7 @@ func main() {
 	// fmt.Println(res)
 	// res := addBinary([]int{1, 0, 1}, []int{1})
 	// res := longestPalindromicSubstringDP([]string{"e", "b", "c", "b", "a", "b", "c", "d"}) //最长的是cbabc
-	res := regularExpressionMatching([]string{"a", "a"}, []string{"a", "*"})
+	res := regularExpressionMatching([]string{"a", "a", "a"}, []string{"a", "*", "b"})
 	fmt.Println(res)
 }
 
@@ -261,9 +261,12 @@ func regularExpressionMatching(source, match []string) bool {
 		}
 	}
 	j := 0
+	i := 0
 LOOP:
-	for i := 0; i < leng1; i++ {
-		if(j+i > )
+	for i = 0; i < leng1; i++ {
+		if j+i > leng2-1 {
+			return false
+		}
 		if !(source[i] == match[j+i] || match[j+i] == ".") {
 			j++
 			goto LOOP
