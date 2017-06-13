@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"strconv"
+	"strings"
 )
 
 var validstr = []string{"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"}
@@ -14,7 +15,13 @@ func main() {
 	// fmt.Println(res)
 	// res := addBinary([]int{1, 0, 1}, []int{1})
 	// res := longestPalindromicSubstringDP([]string{"e", "b", "c", "b", "a", "b", "c", "d"}) //最长的是cbabc
-	res := regularExpressionMatching([]string{"a", "a", "a"}, []string{"a", "*", "b"})
+	// res := wildcardMatching([]string{"a", "a", "a"}, []string{"a", "*", "b"})
+	// res := longestCommonPrefix([]string{"abc", "ab", "abcd"})
+	// res := ValidNumber("2.1.0e3")
+	// res := Anagrams([]string{"tea", "and", "ate", "eat", "den", "nad"})
+	// res := SimplifyPath("/a/./b/../c/af/bafd/")
+	// fmt.Println(res)
+	res := lengthofLastWord("Hello World")
 	fmt.Println(res)
 }
 
@@ -276,4 +283,292 @@ LOOP:
 		return true
 	}
 	return false
+}
+
+/*
+Implement wildcard pattern matching with support for '?' and '*'.
+'?' Matches any single character. '*' Matches any sequence of characters (including the empty sequence).
+The matching should cover the entire input string (not partial).
+The function prototype should be:
+bool isMatch(const char *s, const char *p)
+Some examples:
+isMatch("aa","a") → false
+isMatch("aa","aa") → true
+isMatch("aaa","aa") → false
+isMatch("aa", "*") → true
+isMatch("aa", "a*") → true
+isMatch("ab", "?*") → true
+isMatch("aab", "c*a*b") → false
+
+// **/
+// func wildcardMatching(source, match []string) bool {
+// 	return true
+// }
+
+/*
+求最长公共前缀
+[]string{"abc", "ab", "a"} --> []string{"a"}
+这道题还联系了string到[]byte的转化
+**/
+func longestCommonPrefix(source []string) string {
+	leng := len(source)
+	if leng == 0 {
+		return ""
+	}
+	maytotal := []byte(source[0])
+	var m int
+	for k, v := range maytotal {
+		m = k
+		for i := 1; i < leng; i++ {
+			if k >= len([]byte(source[i])) || []byte(source[i])[k] != v {
+				goto END
+			}
+		}
+	}
+END:
+	resByte := maytotal[:m]
+	return string(resByte)
+}
+
+/*
+Validate if a given string is numeric.
+Some examples:
+"0" => true
+" 0.1 " => true
+"abc" => false
+"1 a" => false
+"2e10" => true
+Note: It is intended for the problem statement to be ambiguous. You should gather all requirements up front before implementing one
+**/
+func ValidNumber(source string) bool {
+	sourceArr := []byte(source)
+	leng := len(sourceArr)
+	if leng < 1 {
+		return false
+	}
+	first := string(sourceArr[0])
+	numchar := []string{"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"}
+	firstchar := []string{"+", "-"}
+	midchar := []string{"E", "e"}
+	if !in_array(first, append(numchar, firstchar...)) {
+		return false
+	}
+	eNums := 0
+	dianNums := 0
+	for i := 1; i < leng; i++ {
+		if in_array(string(sourceArr[i]), numchar) {
+			continue
+		} else if in_array(string(sourceArr[i]), midchar) {
+			eNums += 1
+			if eNums > 1 {
+				return false
+			}
+		} else if string(sourceArr[i]) == "." {
+			dianNums += 1
+			if dianNums > 1 {
+				return false
+			}
+		} else {
+			return false
+		}
+	}
+	return true
+}
+
+/*
+Given an integer, convert it to a roman numeral.
+Input is guaranteed to be within the range from 1 to 3999
+【罗马数字】
+1~9: {"I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX"};
+10~90: {"X", "XX", "XXX", "XL", "L", "LX", "LXX", "LXXX", "XC"};
+100~900: {"C", "CC", "CCC", "CD", "D", "DC", "DCC", "DCCC", "CM"};
+1000~3000: {"M", "MM", "MMM"}.
+**/
+func integertoRoman(input int) string {
+	if input > 3000 || input < 1 {
+		return "invalid"
+	}
+	qianMap := []string{}
+	qianMap = append(qianMap, "M", "MM", "MMM")
+	baiMap := []string{}
+	baiMap = append(baiMap, "C", "CC", "CCC", "CD", "D", "DC", "DCC", "DCCC", "CM")
+	shiMap := []string{}
+	shiMap = append(shiMap, "X", "XX", "XXX", "XL", "L", "LX", "LXX", "LXXX", "XC")
+	geMap := []string{}
+	geMap = append(geMap, "I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX")
+	fmt.Println(geMap)
+	qian := qianMap[input/1000-1]
+	input = input % 1000
+	bai := baiMap[input/100-1]
+	input = input % 100
+	shi := shiMap[input/10-1]
+	input = input % 10
+	ge := geMap[input%10-1]
+	return qian + bai + shi + ge
+}
+
+func RomantoInteger(srt string) int {
+	return 0
+}
+
+/*
+The count-and-say sequence is the sequence of integers beginning as follows:
+1, 11, 21, 1211, 111221, ...
+1 is read off as "one 1" or 11.
+11 is read off as "two 1s" or 21.
+21 is read off as "one 2", then "one 1" or 1211.
+Given an integer n, generate the nth sequence.
+Note: The sequence of integers will be represented as a string.
+**/
+func CountAndSay() []string {
+	total := []string{"1"}
+	for len(total) < 10 {
+		base := total[len(total)-1]
+		newstr := createSequence(base)
+		total = append(total, newstr)
+	}
+	return total
+}
+
+/*
+1211--〉111221
+做这个题目的时候浪费了好多时间，原因在当时走到i的时候，用source[i]去比较source[i-1]，来决定要不要记录source[i-1]这个元素，这样很绕。
+为什么在当前元素i下用source[i]去比较source[i+1]来判断要不要记录source[i]呢，这样就直观很多了是不是
+**/
+func createSequence(str string) (res string) {
+
+	source := strings.Split(str, "")
+	// res = res + strconv.Itoa(1) + source[0]
+	leng := len(source)
+	if leng == 0 {
+		return ``
+	}
+	if leng == 1 {
+		return `1` + source[0]
+	}
+
+	same := 1
+	for i := 0; i < len(source)-1; i++ {
+
+		if source[i] != source[i+1] {
+			res = res + strconv.Itoa(same) + source[i]
+			same = 1
+		} else {
+			same += 1
+		}
+
+	}
+	if source[leng-1] != source[leng-2] {
+		same = 1
+	}
+	res = res + strconv.Itoa(same) + source[leng-1]
+	return
+}
+
+/*
+回文构词法
+Given an array of strings, return all groups of strings that are anagrams.
+Note: All inputs will be in lower-case.
+For example:
+Input:　　["tea","and","ate","eat","den"]
+Output:   ["tea","ate","eat"]
+**/
+func Anagrams(source []string) [][]string {
+	var res [][]string
+	hashMap := make(map[string][]int)
+	for i := 0; i < len(source); i++ {
+		tempstr := sortStr(source[i])
+		_, ok := hashMap[tempstr]
+		if ok {
+			hashMap[tempstr] = append(hashMap[tempstr], i)
+		} else {
+			hashMap[tempstr] = []int{i}
+		}
+	}
+	for _, v := range hashMap {
+		if len(v) > 1 {
+			var tempres []string
+			for i := 0; i < len(v); i++ {
+				tempres = append(tempres, source[v[i]])
+			}
+			res = append(res, tempres)
+		}
+	}
+	return res
+}
+
+//冒泡法对字符串进行排序
+func sortStr(str string) string {
+	source := strings.Split(str, "")
+	length := len(source)
+	for i := 0; i < length; i++ {
+		for j := i; j < length; j++ {
+			if source[i] > source[j] {
+				source[i], source[j] = source[j], source[i]
+			}
+		}
+	}
+	var res string
+	for _, v := range source {
+		res = res + v
+	}
+	return res
+}
+
+/*
+简化路径表示法
+Given an absolute path for a file (Unix-style), simplify it.
+For example,
+path = "/home/", => "/home"
+path = "/a/./b/../../c/", => "/c"
+Corner Cases:
+• Did you consider the case where path = "/../"? In this case, you should return "/".
+• Another corner case is the path might contain multiple slashes '/' together, such as "/home//foo/".
+In this case, you should ignore redundant slashes and return "/home/foo".
+**/
+func SimplifyPath(str string) string {
+	source := strings.Split(str, "")
+
+	//先去除./中的. 将/a/./b/../../c/去除多余的"."转换成/a//b/../../c/
+	for i := 0; i < len(source); i++ {
+		if source[i] == "." {
+			if source[i+1] == "/" && (i-1 < 0 || source[i-1] != ".") {
+				source = append(source[:i], source[i+1:]...)
+			}
+		}
+	}
+	//将/a//b/../../c/去除多余的"/"变成/a/b/../b/a/../c/
+	for i := 0; i < len(source)-1; i++ {
+		if source[i] == "/" {
+			if source[i+1] == "/" {
+				source = append(source[:i], source[i+1:]...)
+			}
+		}
+	}
+	// //5是因为有前面的/a/..这四个字符
+	var i int
+	for i = 5; i < len(source); i++ {
+		if source[i-2] == "." && source[i-1] == "." && source[i] == "/" {
+			source = append(source[:i-4], source[i+1:]...)
+		}
+	}
+	return strings.Join(source, "")
+}
+
+/*
+Given a string s consists of upper/lower-case alphabets and empty space characters ' ', return the length
+of last word in the string.
+If the last word does not exist, return 0.
+Note: A word is defined as a character sequence consists of non-space characters only.
+For example, Given s = "Hello World", return 5.
+**/
+func lengthofLastWord(str string) int {
+	str_arr := strings.Split(str, " ")
+	leng := len(str_arr)
+	if leng < 0 {
+		return 0
+	}
+	elem := str_arr[leng-1]
+	elem_arr := strings.Split(elem, "")
+	return len(elem_arr)
 }
