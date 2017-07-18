@@ -288,7 +288,6 @@ func getMidNode(sa *node) *node {
 	//一个指针每次走一步，一个指针每次走两步
 	var p0 = sa
 	var p1 = sa
-
 	// prev := p1
 	//如果p0.next = nil，因为中间是&&运算符，所以不会走p0.next.next，所以能保证不会因p0.next.next造成nil.next而崩溃，另外用prev这种方式也行
 	for p0.next != nil && p0.next.next != nil {
@@ -298,4 +297,8 @@ func getMidNode(sa *node) *node {
 	}
 	//p1即为所找的中间节点
 	return p1
+}
+
+func FirstMissingPositive() {
+
 }
