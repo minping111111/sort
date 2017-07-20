@@ -26,12 +26,12 @@ func main() {
 	// res := MergeSortedArrayChg3([]int{1, 3, 5, 7, 9}, []int{2, 3, 5, 6, 7})
 	// res := MergekSortedLists(n0, p0, t0)
 	// res := InsertionSortList(n0, -1)
-	res := SortList(np0)
-	for res != nil {
-		// fmt.Println(res.data)
-		fmt.Println(res)
-		res = res.next
-	}
+	// res := SortList(np0)
+	// for res != nil {
+	// 	// fmt.Println(res.data)
+	// 	fmt.Println(res)
+	// 	res = res.next
+	// }
 	// res := NewList([]int{1, 5, 3, 7, 9})
 	// for res != nil {
 	// 	// fmt.Println(res.data)
@@ -44,6 +44,12 @@ func main() {
 	// 	fmt.Println(res1)
 	// 	res1 = res1.next
 	// }
+
+	// res := FirstMissingPositive([]int{3, 4, 3, 1})
+	// res := SortColorsRedWhiteBlue([]int{1, 2, 0, 0, 2, 2, 2, 1, 0, 1, 1, 2, 0, 0, 1})
+	res := SortColors([]int{1, 2, 0, 0, 2, 2, 2, 1, 0, 1, 1, 2, 0, 0, 1})
+
+	fmt.Println(res)
 
 }
 
@@ -299,6 +305,89 @@ func getMidNode(sa *node) *node {
 	return p1
 }
 
-func FirstMissingPositive() {
+/*
+Given an unsorted integer array, find the first missing positive integer.
+For example, Given [1,2,0] return 3, and [3,4,-1,1] return 2.
+Your algorithm should run in O(n) time and uses constant space.
+**/
+//像排位置一样，将i放在第i个位置上，排好后从前到后再过一遍，看哪个没有满足值i的数恰好在第i个位置上，比如j，则j就是所求
+//一般要用hashtable，但是此题要求constant space，即空间复杂度为O(1),所以作罢。但是可以用数组本身做hashtable啊。。。
+//之前一直想着3,4,2,1这种怎么移动，3跟1调换之后，1怎么办呢，其实调换后游标不需要移动啊，这样就可以解决了啊，笨笨的
+//此问题我
+func FirstMissingPositive(sa []int) int {
+	i := 0
+	for i < len(sa) {
+		if sa[i] != i+1 && sa[i] > 0 && sa[i] <= len(sa) {
+			if sa[i] != sa[sa[i]-1] { //注意到这里交换后并没有把游标向下移动，这是本题关键。。。。。。。。。。。。。。。
+				sa[i], sa[sa[i]-1] = sa[sa[i]-1], sa[i]
+			} else { //为了防止sa[i] = sa[sa[i]-1]在这里造成死循环
+				i++
+			}
 
+		} else {
+			i++
+		}
+	}
+	for j := 0; j < len(sa); j++ {
+		if sa[j] != j+1 {
+			return j + 1
+		}
+	}
+	return len(sa) + 1
+}
+
+//题目意思看错了，看成按0,1,2,0,1,2这种排序。。。晕
+/*
+Given an array with n objects colored red, white or blue, sort them so that objects of the same color are
+adjacent, with the colors in the order red, white and blue.
+Here, we will use the integers 0, 1, and 2 to represent the color red, white, and blue respectively.
+Note: You are not suppose to use the library’s sort function for this problem.
+Follow up:
+A rather straight forward solution is a two-pass algorithm using counting sort.
+First, iterate the array counting number of 0’s, 1’s, and 2’s, then overwrite array with total number of 0’s,
+then 1’s and followed by 2’s.
+Could you come up with an one-pass algorithm using only constant space?
+**/
+//还是用两个指针。
+//[]int{1, 2, 0, 0, 2, 2, 2, 1, 0, 2, 1, 1, 2}
+func SortColorsRedWhiteBlue(sa []int) []int {
+	i := 0
+	j := 1
+	flag := 0 //flag用来标志是红球、白球还是蓝球
+	for i < len(sa) && j < len(sa) {
+		if sa[i] != flag { //颜色不对，需要换
+			for k := j; k < len(sa); k++ {
+				if sa[k] == flag {
+					sa[i], sa[k] = sa[k], sa[i]
+					break
+				}
+			}
+		}
+		i++
+		if j == i { //要保证j游标在i游标后面
+			j++
+		}
+		flag++
+		if flag == 3 {
+			flag = 0
+		}
+	}
+	return sa
+}
+
+/*
+Given an array with n objects colored red, white or blue, sort them so that objects of the same color are
+adjacent, with the colors in the order red, white and blue.
+Here, we will use the integers 0, 1, and 2 to represent the color red, white, and blue respectively.
+Note: You are not suppose to use the library’s sort function for this problem.
+Follow up:
+A rather straight forward solution is a two-pass algorithm using counting sort.
+First, iterate the array counting number of 0’s, 1’s, and 2’s, then overwrite array with total number of 0’s,
+then 1’s and followed by 2’s.
+Could you come up with an one-pass algorithm using only constant space?
+**/
+//还是用两个指针。
+//[]int{1, 2, 0, 0, 2, 2, 2, 1, 0, 2, 1, 1, 2}
+func SortColors(sa []int) []int {
+	
 }
