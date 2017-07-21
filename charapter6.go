@@ -47,7 +47,8 @@ func main() {
 
 	// res := FirstMissingPositive([]int{3, 4, 3, 1})
 	// res := SortColorsRedWhiteBlue([]int{1, 2, 0, 0, 2, 2, 2, 1, 0, 1, 1, 2, 0, 0, 1})
-	res := SortColors([]int{1, 2, 0, 0, 2, 2, 2, 1, 0, 1, 1, 2, 0, 0, 1})
+	// res := SortColors([]int{1, 2, 0, 0, 2, 2, 2, 1, 0, 1, 1, 2, 0, 0, 1})
+	res := SortColorsB([]int{1, 2, 0, 0, 2, 2, 2, 1, 0, 1, 1, 2, 0, 0, 1})
 
 	fmt.Println(res)
 
@@ -389,5 +390,52 @@ Could you come up with an one-pass algorithm using only constant space?
 //还是用两个指针。
 //[]int{1, 2, 0, 0, 2, 2, 2, 1, 0, 2, 1, 1, 2}
 func SortColors(sa []int) []int {
-	
+	colorMap := map[int]int{
+		0: 0,
+		1: 0,
+		2: 0,
+	}
+	for i := 0; i < len(sa); i++ {
+		if sa[i] == 0 {
+			colorMap[0] += 1
+		} else if sa[i] == 1 {
+			colorMap[1] += 1
+		} else {
+			colorMap[2] += 1
+		}
+	}
+	var i int
+	var j int
+	for i = 0; i < colorMap[0]; i++ {
+		sa[i] = 0
+	}
+	for j = i; j < i+colorMap[1]; j++ {
+		sa[j] = 1
+	}
+	for k := j; k < j+colorMap[2]; k++ {
+		sa[k] = 2
+	}
+	return sa
+}
+
+//有是在这里遇到了坑，current在=0或者=2的时，当与left或者right交换了位置后，不能++，否则就有问题，因为并不能保证换过来的就是1，如果是2，则还要将换过来的2进行再次交换。如果直接++，则换过来的2就跳过了。
+// []int{1, 2, 0, 0, 2, 2, 2, 1, 0, 1, 1, 2, 0, 0, 1}
+func SortColorsB(sa []int) []int {
+	fmt.Println(sa)
+	left := 0
+	right := len(sa) - 1
+	current := 1
+	for current < right && current > left {
+		if sa[current] == 0 {
+			sa[left], sa[current] = sa[current], sa[left]
+			left++
+		} else if sa[current] == 1 {
+			current++
+		} else if sa[current] == 2 {
+			sa[current], sa[right] = sa[right], sa[current]
+			right--
+		}
+		fmt.Println(sa)
+	}
+	return sa
 }
