@@ -137,3 +137,37 @@ func Combinations(start, end, k int) [][]int {
 	return res
 
 }
+
+var phoneTable = map[string][]string{
+	2: []string{"a", "b", "c"},
+	3: []string{"d", "e", "f"},
+	4: []string{"g", "h", "i"},
+	5: []string{"j", "k", "l"},
+	5: []string{"m", "n", "o"},
+	6: []string{"p", "q", "r", "s"},
+	7: []string{"t", "u", "v"},
+	8: []string{"w", "x", "y", "z"},
+}
+
+/*
+Given a digit string, return all possible letter combinations that the number could represent.
+A mapping of digit to letters (just like on the telephone buttons) is given below.
+Input:Digit string "23"
+Output: ["ad", "ae", "af", "bd", "be", "bf", "cd", "ce", "cf"].
+Note: Although the above answer is in lexicographical order, your answer could be in any order you
+want
+**/
+func LetterCombinationsofaPhoneNumber(selNum []int) []string {
+
+	res := []string{}
+	if len(selNum) == 1 {
+		for j := 0; j < len(phoneTable[selNum[0]]); j++ {
+			res = append(res, []string{phoneTable[selNum[0]][j]})
+		}
+		return res
+	}
+	for i := 0; i < len(phoneTable[selNum[0]]); i++ {
+		res = LetterCombinationsofaPhoneNumber()
+	}
+
+}
