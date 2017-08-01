@@ -5,7 +5,9 @@ import (
 )
 
 func main() {
-	res := SubsetsII([]int{1, 2, 2})
+	// res := SubsetsII([]int{1, 2, 2})
+	// res := Permutations([]int{1, 2, 3})
+	res := Combinations(0, 20, 6)
 	fmt.Println(res)
 }
 
@@ -78,6 +80,60 @@ http://www.cnblogs.com/easonliu/p/3632442.html
 第一步：从后到前，找到相邻的两个数i和i+1,如果sa[i]< sa[i+1],则进行第二步，如果没找到，则结束
 第二步：交换sa[i]和sa[i+1]的值，从头开始走第一步
 **/
+
 func Permutations(sa []int) [][]int {
+	isCircle := true
+	permu := [][]int{sa}
+
+	for isCircle {
+		isCircle = false
+		for i := len(sa) - 1; i > 0; i-- {
+			if sa[i-1] < sa[i] {
+				sa[i-1], sa[i] = sa[i], sa[i-1]
+				//关于slice的引用类型，这里比较坑。。。
+				temp := make([]int, len(sa))
+				copy(temp, sa)
+				permu = append(permu, temp)
+				isCircle = true
+				break
+			}
+		}
+	}
+	return permu
+}
+
+/*
+Given two integers n and k, return all possible combinations of k numbers out of 1...n.
+For example, If n = 4 and k = 2, a solution is:
+[
+[2,4],
+[3,4],
+[2,3],
+[1,2],
+[1,3],
+[1,4],
+]
+**/
+func Combinations(start, end, k int) [][]int {
+	res := [][]int{}
+	if end-start < k {
+		return res
+	}
+	if k == 1 {
+		tempRes := [][]int{}
+		for j := start; j < end; j++ {
+			tempRes = append(tempRes, []int{j + 1})
+		}
+		return tempRes
+	}
+	for i := start; i <= end-k; i++ {
+		clildRes := Combinations(i+1, end, k-1)
+		for _, v := range clildRes {
+			v1 := append([]int{i + 1}, v...)
+			res = append(res, v1)
+		}
+	}
+
+	return res
 
 }
