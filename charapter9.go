@@ -26,7 +26,7 @@ var maze = [][]int{
 }
 
 func main() {
-	exist, path := shortRoad([]int{0, 0}, []int{4, 4})
+	exist, path := shortRoad([]int{2, 2}, []int{4, 4})
 	if exist {
 		fmt.Println(path)
 	} else {
@@ -154,7 +154,7 @@ func shortRoad(vs []int, vd []int) (bool, [][]int) {
 			temp = append(temp, []int{toB[0], toB[1] + 1})
 		}
 		for _, v := range temp {
-			if maze[v[0]][v[1]] == 0 {
+			if maze[v[0]][v[1]] == 0 || (v[0] == vd[0] && v[1] == vd[1]) {
 				if _, ok := black[strconv.Itoa(v[0])+","+strconv.Itoa(v[1])]; !ok {
 					gray = append(gray, v)
 					if _, ok2 := pathRecord[strconv.Itoa(v[0])+","+strconv.Itoa(v[1])]; !ok2 {
@@ -169,12 +169,12 @@ func shortRoad(vs []int, vd []int) (bool, [][]int) {
 	if (len(gray) == 0 || !(gray[0][0] == vd[0] && gray[0][1] == vd[1])) && !flag {
 		return false, [][]int{}
 	}
-
-	pathArray := [][]int{}
+	pathArray := [][]int{vd}
 	last := vd
+
 	for !(pathRecord[strconv.Itoa(last[0])+","+strconv.Itoa(last[1])][0] == vs[0] && pathRecord[strconv.Itoa(last[0])+","+strconv.Itoa(last[1])][1] == vs[1]) {
-		pathArray = append(pathArray, last)
 		last = pathRecord[strconv.Itoa(last[0])+","+strconv.Itoa(last[1])]
+		pathArray = append(pathArray, last)
 
 	}
 	pathArray = append(pathArray, vs)
