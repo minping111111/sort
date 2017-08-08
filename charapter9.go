@@ -166,17 +166,16 @@ func shortRoad(vs []int, vd []int) (bool, [][]int) {
 		}
 
 	}
-	if len(gray) == 0 || !(gray[0][0] == vd[0] && gray[0][1] == vd[1]) {
+	if (len(gray) == 0 || !(gray[0][0] == vd[0] && gray[0][1] == vd[1])) && !flag {
 		return false, [][]int{}
 	}
 
-	fmt.Println(pathRecord)
-	fmt.Println(123)
-	pathArray := [][]int{vd}
+	pathArray := [][]int{}
 	last := vd
 	for !(pathRecord[strconv.Itoa(last[0])+","+strconv.Itoa(last[1])][0] == vs[0] && pathRecord[strconv.Itoa(last[0])+","+strconv.Itoa(last[1])][1] == vs[1]) {
+		pathArray = append(pathArray, last)
 		last = pathRecord[strconv.Itoa(last[0])+","+strconv.Itoa(last[1])]
-		pathArray = append(pathArray, pathRecord[strconv.Itoa(last[0])+","+strconv.Itoa(last[1])])
+
 	}
 	pathArray = append(pathArray, vs)
 	for i := 0; i < len(pathArray)/2; i++ {
