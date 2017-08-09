@@ -3,7 +3,7 @@ package main
 
 import (
 	"fmt"
-	"sort"
+	// "sort"
 	"strconv"
 	"strings"
 )
@@ -27,9 +27,10 @@ var maze = [][]int{
 }
 
 func main() {
-	exist, path := baseTu("v0", "v6")
+	// exist, path := baseTu("v0", "v6")
 	// exist, path := shortRoad([]int{0, 2}, []int{4, 4})
-	// exist, path := WordLadder("cog", "cog")
+	// exist, path := WordLadder("hit", "cog")
+	exist, path := WordLadderII("hit", "cog")
 	if exist {
 		fmt.Println(path)
 	} else {
@@ -40,9 +41,9 @@ func main() {
 /*
 广度(宽度)优先搜索，见http://blog.csdn.net/raphealguo/article/details/7523411
 个人总结有几点需要注意：
-1：灰色的是即将被辐射的元素，灰色的是队列(我这里用数组实现)，每次取队列第一个元素
-2:黑色的是已经辐射(检查)过的元素，每个元素只辐射一次，不能重复辐射。所以需要检查该元素是否被辐射过
-3：为了记录最终的辐射路径，这里采用map来记录，map的key为某个元素b，如果b元素是从元素a辐射过来的，则map[b] = a,即是从哪个元素辐射过来达到a的那个元素
+1：灰色的是即将被辐射的元素，灰色的是队列(我这里用数组实现)，每次取队列第一个元素，将此元素扔到黑名单中
+2:黑色的是已经辐射(检查)过的元素，每个元素只辐射一次，不能重复辐射。所以需要检查该元素是否被辐射过，为了查找方便，用map来存储黑色元素
+3：为了记录最终的辐射路径，这里还是采用map来记录，map的key为某个元素b，如果b元素是从元素a辐射过来的，则map[b] = a,即是从哪个元素辐射过来达到a的那个元素
 4：辐射路径的这个map是不能重复改写的，即map中此key只有在不存在的时候才能被写，如果此key已经存在，则不能被改写，否则路径就错了。
 **/
 
@@ -89,6 +90,16 @@ func baseTu(vs, vd string) (bool, []string) {
 
 }
 
+var dictArray = []string{"hot", "dot", "dog", "lot", "log"}
+
+var dict = map[string][]string{
+	"hot": []string{"dot", "lot"},
+	"dot": []string{"hot", "dog", "lot"},
+	"dog": []string{"dot", "log"},
+	"lot": []string{"hot", "dot", "log"},
+	"log": []string{"dog", "lot"},
+}
+
 /*
 Given two words (start and end), and a dictionary, find the length of shortest transformation sequence
 from start to end, such that:
@@ -104,18 +115,6 @@ Note:
 • All words have the same length.
 • All words contain only lowercase alphabetic characters.
 **/
-
-var dictArray = []string{"hot", "dot", "dog", "lot", "log"}
-
-var dict = map[string][]string{
-	"hot": []string{"dot", "lot"},
-	"dot": []string{"hot", "dog", "lot"},
-	"dog": []string{"dot", "log"},
-	"lot": []string{"hot", "dot", "log"},
-	"log": []string{"dog", "lot"},
-}
-
-//"hit", "cog"
 func WordLadder(vs, vd string) (bool, []string) {
 	if vs == vd {
 		return true, []string{vs}
@@ -124,7 +123,6 @@ func WordLadder(vs, vd string) (bool, []string) {
 	addVnode(vs)
 	addVnode(vd)
 	gray := []string{}
-	// black := make(map[string]string)
 	pathRecord := map[string]string{
 		vs: "",
 	}
@@ -157,14 +155,142 @@ func WordLadder(vs, vd string) (bool, []string) {
 	return true, pathArray
 }
 
+/*
+Given two words (start and end), and a dictionary, find all shortest transformation sequence(s) from start
+to end, such that:
+• Only one letter can be changed at a time
+• Each intermediate word must exist in the dictionary
+For example, Given:
+start = "hit"
+end = "cog"
+dict = ["hot","dot","dog","lot","log"]
+Return
+[
+["hit","hot","dot","dog","cog"],
+["hit","hot","lot","log","cog"]
+]
+Note:
+• All words have the same length.
+• All words contain only lowercase alphabetic characters
+**/
+func WordLadderII(vs, vd string) (bool, [][]string) {
+	if vs == vd {
+		return true, [][]string{[]string{vs}}
+	}
+	//先建立V和E(点和边)的关系
+	addVnode(vs)
+	addVnode(vd)
+	gray := []string{}
+	pathRecord := map[string]string{
+		vs: "",
+	}
+	gray = append(gray, vs)
+	for len(gray) > 0 && gray[0] != vd {
+		toB := gray[0]
+		for _, v := range dict[toB] {
+			if _, ok := pathRecord[v]; !ok {
+				pathRecord[v] = toB
+				gray = append(gray, v)
+			}
+		}
+		gray = gray[1:]
+	}
+
+	if len(gray) == 0 || gray[0] != vd {
+		return false, [][]string{}
+	}
+	last := vd
+	pathArray := []string{vd}
+	for pathRecord[last] != vs {
+		pathArray = append(pathArray, pathRecord[last])
+		last = pathRecord[last]
+	}
+	pathArray = append(pathArray, vs)
+	shortLen := len(pathArray)
+	// start := vs
+	// return true, []string{}
+	res := getAllShortPathFromDict(shortLen, dict, vs, vd)
+	return true, res
+}
+
+/*
+V-E字典：
+dot:[hot dog lot]
+dog:[dot log cog]
+lot:[hot dot log]
+log:[dog lot]
+hit:[hot]
+cog:[dog]
+hot:[dot lot hit]
+
+路径长度:5
+起始点:hit
+结束点:cog
+要求:找到所有从hit到cog的路径长度为5的所有路径
+**/
+
+func getAllShortPathFromDict(shortLen int, dict map[string][]string, vs, vd string) [][]string {
+
+	res := [][]string{[]string{vs}}
+LOOP:
+	for {
+		leng := len(res)
+		todel := []int{}
+		for i := 0; i < leng; i++ {
+			isadd := false
+			for _, v1 := range dict[res[i][len(res[i])-1]] {
+				if !in_array(v1, res[i]) {
+					isadd = true
+					toadd := []string{}
+					toadd = append(toadd, res[i]...)
+					toadd = append(toadd, v1)
+					if len(toadd) > shortLen {
+						break LOOP
+					}
+					res = append(res, toadd)
+				}
+			}
+			if isadd {
+				todel = append(todel, i)
+			}
+
+		}
+		for j := 0; j < len(todel); j++ {
+			res = append(res[:todel[j]], res[todel[j]+1:]...)
+			for k := j + 1; k < len(todel); k++ {
+				todel[k] = todel[k] - 1
+			}
+		}
+
+	}
+	final := [][]string{}
+	for _, v := range res {
+		if v[len(v)-1] == vd {
+			final = append(final, v)
+		}
+	}
+	return final
+}
+
+func in_array(key string, arr []string) bool {
+	var in bool
+	for i := 0; i < len(arr); i++ {
+		if arr[i] == key {
+			in = true
+			break
+		}
+	}
+	return in
+}
+
 func addVnode(vs string) {
 	if _, ok := dict[vs]; !ok {
 		dict[vs] = []string{}
 		for _, v := range dictArray {
 			vArr := strings.Split(v, "")
 			vsArr := strings.Split(vs, "")
-			sort.Strings(vArr)
-			sort.Strings(vsArr)
+			// sort.Strings(vArr)
+			// sort.Strings(vsArr)
 			num := 0
 			for i := 0; i < len(vArr); i++ {
 				if vArr[i] == vsArr[i] {
